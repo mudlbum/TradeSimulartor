@@ -380,16 +380,16 @@
                     return;
                 }
 
-                const moversData = await alpacaFetch('/v1/screener/stocks/most-actives?top=10');
-                if (!moversData || moversData.most_actives.length === 0) {
+                const moversData = await alpacaFetch('/v1/screener/stocks/top-gainers?top=10');
+                if (!moversData || moversData.top_gainers.length === 0) {
                      logMessage("Could not identify any market movers from Alpaca. AI analysis paused.", "action");
                      return;
                 }
-                const candidates = moversData.most_actives;
+                const candidates = moversData.top_gainers;
 
                 const recommendedStocks = [];
                 for (const candidate of candidates) {
-                    const symbol = candidate.symbol;
+                    const symbol = candidate.ticker;
                     logMessage(`AI analyzing candidate: ${symbol}`, "action");
                     try {
                         
@@ -428,7 +428,7 @@
                      alpacaFetch(`/v2/stocks/${symbol}/bars?timeframe=1Min&start=${start}&limit=200`),
                 ]);
                 
-                if (bars5m.bars.length < 20 || bars1m.bars.length < 20) return null;
+                if (!bars5m || !bars1m || bars5m.bars.length < 20 || bars1m.bars.length < 20) return null;
 
                 const closePrices5m = bars5m.bars.map(b => b.c);
                 const closePrices1m = bars1m.bars.map(b => b.c);
@@ -667,23 +667,36 @@
         
         // --- INDICATOR CALCULATIONS ---
         function calculateRSI(prices, period = 14) {
+            if (prices.length < period) return 50; // Not enough data
             let gains = 0;
             let losses = 0;
-            for (let i = 1; i < prices.length; i++) {
+
+            for (let i = 1; i <= period; i++) {
                 const diff = prices[i] - prices[i - 1];
-                if (i <= period) {
-                    if (diff >= 0) { gains += diff; } else { losses -= diff; }
+                if (diff >= 0) { gains += diff; } else { losses -= diff; }
+            }
+            
+            let avgGain = gains / period;
+            let avgLoss = losses / period;
+
+            for (let i = period + 1; i < prices.length; i++) {
+                const diff = prices[i] - prices[i-1];
+                if (diff >= 0) {
+                    avgGain = (avgGain * (period - 1) + diff) / period;
+                    avgLoss = (avgLoss * (period - 1)) / period;
                 } else {
-                    gains = (gains * (period - 1) + (diff >= 0 ? diff : 0)) / period;
-                    losses = (losses * (period - 1) + (diff < 0 ? -diff : 0)) / period;
+                    avgGain = (avgGain * (period - 1)) / period;
+                    avgLoss = (avgLoss * (period - 1) - diff) / period;
                 }
             }
-            if (losses === 0) return 100;
-            const rs = gains / losses;
+            
+            if (avgLoss === 0) return 100;
+            const rs = avgGain / avgLoss;
             return 100 - (100 / (1 + rs));
         }
 
         function calculateATR(bars, period = 14) {
+            if(bars.length < period) return 0;
             let trs = [];
             for (let i = 1; i < bars.length; i++) {
                 const high = bars[i].h;
@@ -697,6 +710,7 @@
         }
 
         function calculateMACD(prices, shortPeriod = 12, longPeriod = 26, signalPeriod = 9) {
+            if (prices.length < longPeriod) return { macd: 0, signal: 0, histogram: 0};
             const calculateEMA = (data, period) => {
                 const k = 2 / (period + 1);
                 let ema = [data[0]];
@@ -710,10 +724,17 @@
             const longEMA = calculateEMA(prices, longPeriod);
             
             let macdLine = [];
-            for (let i = 0; i < longEMA.length; i++) {
-                 const offset = shortEMA.length - longEMA.length;
-                 macdLine.push(shortEMA[i + offset] - longEMA[i]);
+            for (let i = 0; i < prices.length; i++) {
+                if (i >= longPeriod - 1) {
+                     const longIndex = i - (longPeriod - 1);
+                     const shortIndex = i - (shortPeriod - 1);
+                     if (shortEMA[shortIndex] !== undefined && longEMA[longIndex] !== undefined) {
+                        macdLine.push(shortEMA[shortIndex] - longEMA[longIndex]);
+                     }
+                }
             }
+            
+            if (macdLine.length < signalPeriod) return { macd: 0, signal: 0, histogram: 0};
 
             const signalLine = calculateEMA(macdLine, signalPeriod);
             const macd = macdLine[macdLine.length-1];

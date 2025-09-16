@@ -380,16 +380,16 @@
                     return;
                 }
 
-                const moversData = await alpacaFetch('/v1/screener/stocks/top-gainers?top=10');
-                if (!moversData || moversData.top_gainers.length === 0) {
+                const moversData = await alpacaFetch('/v2/stocks/most_actives');
+                if (!moversData || moversData.most_actives.length === 0) {
                      logMessage("Could not identify any market movers from Alpaca. AI analysis paused.", "action");
                      return;
                 }
-                const candidates = moversData.top_gainers;
+                const candidates = moversData.most_actives;
 
                 const recommendedStocks = [];
                 for (const candidate of candidates) {
-                    const symbol = candidate.ticker;
+                    const symbol = candidate.symbol;
                     logMessage(`AI analyzing candidate: ${symbol}`, "action");
                     try {
                         
@@ -618,7 +618,7 @@
 
         async function alpacaFetch(endpoint, options = {}) {
             let url;
-            if (endpoint.startsWith('/v1beta1/news') || endpoint.startsWith('/v2/stocks') || endpoint.startsWith('/v1/')) {
+            if (endpoint.startsWith('/v1beta1/news') || endpoint.startsWith('/v2/stocks')) {
                 url = `https://data.alpaca.markets${endpoint}`;
             } else {
                 url = `https://paper-api.alpaca.markets${endpoint}`;

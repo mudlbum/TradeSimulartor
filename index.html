@@ -380,14 +380,13 @@
                     return;
                 }
                 
-                // Using the correct, updated endpoint for top gainers
-                const moversData = await alpacaFetch('/v1beta1/screener/stocks/top-gainers?top=10');
-
-                if (!moversData || moversData.top_gainers.length === 0) {
+                const moversData = await alpacaFetch('/v2/stocks/most_actives');
+                
+                if (!moversData || moversData.length === 0) {
                      logMessage("Could not identify any market movers from Alpaca. AI analysis paused.", "action");
                      return;
                 }
-                const candidates = moversData.top_gainers;
+                const candidates = moversData;
 
                 const recommendedStocks = [];
                 for (const candidate of candidates) {

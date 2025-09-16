@@ -1,27 +1,55 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Trading Dashboard Pro (Enhanced)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+
         .glass-widget {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
-        .tab-active { border-color: #3b82f6; color: #eff6ff; }
-        .tab-inactive { border-color: transparent; color: #94a3b8; }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .tab-active {
+            border-color: #3b82f6;
+            color: #eff6ff;
+        }
+
+        .tab-inactive {
+            border-color: transparent;
+            color: #94a3b8;
+        }
+
         .loader {
             width: 48px;
             height: 48px;
@@ -32,21 +60,19 @@
             box-sizing: border-box;
             animation: rotation 1s linear infinite;
         }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .warning-banner {
-            background-color: #f59e0b;
-            color: #422006;
-            padding: 0.75rem 1.25rem;
-            border-left: 4px solid #d97706;
-        }
-        .danger-banner {
-            background-color: #ef4444;
-            color: #450a0a;
-            padding: 0.75rem 1.25rem;
-            border-left: 4px solid #dc2626;
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body class="text-gray-200 antialiased">
 
     <div id="loading-overlay" class="fixed inset-0 bg-slate-900 bg-opacity-80 flex justify-center items-center z-50">
@@ -59,8 +85,8 @@
     <div class="min-h-screen p-4 sm:p-6 lg:p-8">
         <header class="flex justify-between items-center mb-4">
             <div>
-                 <h1 class="text-3xl font-bold text-white">AI Trading Dashboard Pro</h1>
-                 <p class="text-md text-gray-400">Enhanced Hybrid Strategy</p>
+                <h1 class="text-3xl font-bold text-white">AI Trading Dashboard Pro</h1>
+                <p class="text-md text-gray-400">Enhanced Hybrid Strategy</p>
             </div>
             <div class="flex items-center space-x-4">
                 <div class="text-right">
@@ -70,7 +96,8 @@
                         <p id="status-text" class="text-lg font-semibold text-white">Idle</p>
                     </div>
                 </div>
-                <button id="start-stop-btn" class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-5 rounded-lg transition-all duration-200 shadow-lg">
+                <button id="start-stop-btn"
+                    class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-5 rounded-lg transition-all duration-200 shadow-lg">
                     Start Bot
                 </button>
             </div>
@@ -80,9 +107,13 @@
         <div class="mb-6">
             <div class="border-b border-gray-700">
                 <nav id="tabs" class="-mb-px flex space-x-6" aria-label="Tabs">
-                    <a href="#dashboard" class="tab-active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">Dashboard</a>
-                    <a href="#positions" class="tab-inactive whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">Positions</a>
-                    <a href="#settings" class="tab-inactive whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">Settings & Data</a>
+                    <a href="#dashboard"
+                        class="tab-active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">Dashboard</a>
+                    <a href="#positions"
+                        class="tab-inactive whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">Positions</a>
+                    <a href="#settings"
+                        class="tab-inactive whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">Settings
+                        & Data</a>
                 </nav>
             </div>
         </div>
@@ -102,7 +133,7 @@
                     </div>
                     <div class="glass-widget p-5 rounded-2xl">
                         <h3 class="text-gray-400 text-sm font-medium">Total P/L</h3>
-                        <p id="total-pl" class="text-3xl font-bold text-gray-500 mt-1">$0.00</p>
+                        <p id="total-pl" class="text-3xl font-bold text-white mt-1">$0.00</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
@@ -111,91 +142,97 @@
                         <canvas id="performance-chart"></canvas>
                     </div>
                     <div class="xl:col-span-2 glass-widget rounded-2xl p-6 shadow-2xl flex flex-col h-96">
-                         <h3 class="text-xl font-semibold mb-4 text-white">Event Log</h3>
-                         <div id="event-log" class="flex-grow overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                              <p class="text-gray-400 italic">Bot is idle. Configure settings and press Start.</p>
-                         </div>
+                        <h3 class="text-xl font-semibold mb-4 text-white">Event Log</h3>
+                        <div id="event-log" class="flex-grow overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                            <p class="text-gray-400 italic">Bot is idle. Configure settings and press Start.</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Positions Tab -->
             <div id="positions-content" class="hidden">
-                 <div class="glass-widget rounded-2xl p-6 shadow-2xl">
-                     <h3 class="text-xl font-semibold mb-4 text-white">Open Positions</h3>
-                     <div class="overflow-x-auto">
-                         <table class="min-w-full text-sm text-left text-gray-300">
-                             <thead class="text-xs text-gray-400 uppercase bg-gray-900/30">
-                                 <tr>
-                                     <th scope="col" class="px-6 py-3">Symbol</th>
-                                     <th scope="col" class="px-6 py-3">Qty</th>
-                                     <th scope="col" class="px-6 py-3 text-right">Entry Price</th>
-                                     <th scope="col" class="px-6 py-3 text-right">Current Price</th>
-                                     <th scope="col" class="px-6 py-3 text-right">P/L</th>
-                                     <th scope="col" class="px-6 py-3 text-right">Broker Stop</th>
-                                     <th scope="col" class="px-6 py-3 text-right">Actions</th>
-                                 </tr>
-                             </thead>
-                             <tbody id="positions-table-body">
-                                 <tr><td colspan="7" class="text-center py-8 text-gray-500">No open positions.</td></tr>
-                             </tbody>
-                         </table>
-                     </div>
-                 </div>
+                <div class="glass-widget rounded-2xl p-6 shadow-2xl">
+                    <h3 class="text-xl font-semibold mb-4 text-white">Open Positions</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm text-left text-gray-300">
+                            <thead class="text-xs text-gray-400 uppercase bg-gray-900/30">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Symbol</th>
+                                    <th scope="col" class="px-6 py-3">Qty</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Entry Price</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Current Price</th>
+                                    <th scope="col" class="px-6 py-3 text-right">P/L</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Broker Stop</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="positions-table-body">
+                                <tr>
+                                    <td colspan="7" class="text-center py-8 text-gray-500">No open positions.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- Settings Tab -->
             <div id="settings-content" class="hidden">
-                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                     <div class="glass-widget rounded-2xl p-6 shadow-2xl">
-                         <h3 class="text-xl font-semibold text-white mb-4">API Credentials</h3>
-                         <div class="space-y-4">
-                             <input type="text" id="alpaca-key" placeholder="Alpaca API Key" class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                             <input type="password" id="alpaca-secret" placeholder="Alpaca Secret Key" class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                             <input type="text" id="alpha-vantage-key" placeholder="Alpha Vantage API Key" class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                             <input type="password" id="gemini-key" placeholder="Gemini API Key" class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                             <p class="text-xs text-gray-500">Keys are stored in your browser's local storage.</p>
-                         </div>
-                     </div>
-                     <div class="glass-widget rounded-2xl p-6 shadow-2xl">
-                          <h3 class="text-xl font-semibold text-white mb-4">Trading Parameters</h3>
-                          <div class="space-y-4">
-                              <div>
-                                  <label for="risk-per-trade" class="block mb-2 text-sm font-medium text-gray-400">Portfolio Risk per Trade (%)</label>
-                                  <input type="number" id="risk-per-trade" value="1" class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                              </div>
-                              <div>
-                                  <label for="max-concurrent-scalps" class="block mb-2 text-sm font-medium text-gray-400">Max Concurrent Trades</label>
-                                  <input type="number" id="max-concurrent-scalps" value="5" class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                              </div>
-                              <div>
-                                  <label for="limit-order-offset" class="block mb-2 text-sm font-medium text-gray-400">Limit Order Offset (%)</label>
-                                  <input type="number" id="limit-order-offset" value="0.05" step="0.01" class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none" title="Percent above the bid to place a limit order for faster fills. e.g., 0.05 for 5 basis points.">
-                              </div>
-                               <div>
-                                  <label for="ai-analysis-freq" class="block mb-2 text-sm font-medium text-gray-400">AI Analysis Frequency (min)</label>
-                                  <input type="number" id="ai-analysis-freq" value="30" class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                              </div>
-                          </div>
-                     </div>
-                     <div class="glass-widget rounded-2xl p-6 shadow-2xl">
-                         <h3 class="text-xl font-semibold text-white mb-4">Automatic Data Sync</h3>
-                         <p class="text-sm text-gray-400 mb-4">Connect to a local file to automatically save and load all trade and settings data. This requires one-time permission.</p>
-                         <div class="space-y-4">
-                            <button id="connect-file-btn" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg">Connect to Data File</button>
-                            <div class="text-center">
-                                <p id="file-status" class="text-sm text-gray-500">Status: Not Connected</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-widget rounded-2xl p-6 shadow-2xl">
+                        <h3 class="text-xl font-semibold text-white mb-4">API Credentials</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="alpaca-key" placeholder="Alpaca API Key"
+                                class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <input type="password" id="alpaca-secret" placeholder="Alpaca Secret Key"
+                                class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                             <input type="password" id="gemini-key" placeholder="Gemini API Key"
+                                class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <p class="text-xs text-gray-500">API Keys are stored in your browser's local storage.</p>
+                        </div>
+                    </div>
+                    <div class="glass-widget rounded-2xl p-6 shadow-2xl">
+                        <h3 class="text-xl font-semibold text-white mb-4">Trading Parameters</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="risk-per-trade"
+                                    class="block mb-2 text-sm font-medium text-gray-400">Portfolio Risk per Trade
+                                    (%)</label>
+                                <input type="number" id="risk-per-trade" value="1"
+                                    class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             </div>
-                         </div>
-                     </div>
-                     <div class="md:col-span-2 lg:col-span-3 flex justify-end">
-                         <button id="save-settings-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg">Save Settings</button>
-                     </div>
-                 </div>
+                            <div>
+                                <label for="max-concurrent-scalps"
+                                    class="block mb-2 text-sm font-medium text-gray-400">Max Concurrent Trades</label>
+                                <input type="number" id="max-concurrent-scalps" value="5"
+                                    class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="limit-order-offset"
+                                    class="block mb-2 text-sm font-medium text-gray-400">Limit Order Offset (%)</label>
+                                <input type="number" id="limit-order-offset" value="0.05" step="0.01"
+                                    class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    title="Percent above the bid to place a limit order for faster fills. e.g., 0.05 for 5 basis points.">
+                            </div>
+                            <div>
+                                <label for="ai-analysis-freq" class="block mb-2 text-sm font-medium text-gray-400">AI
+                                    Analysis Frequency (min)</label>
+                                <input type="number" id="ai-analysis-freq" value="30"
+                                    class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end items-end">
+                        <button id="save-settings-btn"
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg">Save
+                            All Settings</button>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
-    
+
     <div id="toast-container" class="fixed bottom-5 right-5 z-50"></div>
 
     <script type="module">
@@ -218,22 +255,19 @@
             settings: {
                 alpacaKey: document.getElementById('alpaca-key'),
                 alpacaSecret: document.getElementById('alpaca-secret'),
-                alphaVantageKey: document.getElementById('alpha-vantage-key'),
                 geminiKey: document.getElementById('gemini-key'),
                 riskPerTrade: document.getElementById('risk-per-trade'),
                 maxConcurrentScalps: document.getElementById('max-concurrent-scalps'),
                 limitOrderOffset: document.getElementById('limit-order-offset'),
                 aiAnalysisFreq: document.getElementById('ai-analysis-freq'),
                 saveBtn: document.getElementById('save-settings-btn'),
-                connectFileBtn: document.getElementById('connect-file-btn'),
-                fileStatus: document.getElementById('file-status')
             }
         };
 
         const state = {
             isBotRunning: false,
             userId: null,
-            apiKeys: { alpacaKey: '', alpacaSecret: '', alphaVantageKey: '', geminiKey: '' },
+            apiKeys: { alpacaKey: '', alpacaSecret: '', geminiKey: '' },
             settings: { riskPerTrade: 1, maxConcurrentScalps: 5, limitOrderOffset: 0.05, aiAnalysisFreq: 30 },
             portfolio: { equity: 0, last_equity: 0, initial_equity: 0 },
             positions: [],
@@ -241,11 +275,12 @@
             aiAnalysisInterval: null,
             performanceData: [],
             aiWatchlist: [],
-            fileHandle: null,
+            lastTradeDate: null,
+            isFirstTradeMadeToday: false,
         };
-        
+
         let performanceChart;
-        
+
         // --- INITIALIZATION ---
         window.onload = async () => {
             setLoadingText("Initializing Application...");
@@ -262,20 +297,17 @@
             }
             state.userId = userId;
 
-            setLoadingText("Loading settings...");
+            setLoadingText("Loading settings and data...");
             await loadSettings();
-            logMessage("App initialized. Please import data or configure settings.", "action");
+            await loadDataFromFile();
+            logMessage("App initialized. Configure settings if needed.", "action");
             UI.loadingOverlay.style.display = 'none';
         }
-        
+
         // --- CORE LOGIC ---
         function startBot() {
-            if (!state.apiKeys.alpacaKey || !state.apiKeys.alphaVantageKey || !state.apiKeys.geminiKey) {
-                showToast("Alpaca, Alpha Vantage, and Gemini API keys are required.", "error");
-                return;
-            }
-            if (!state.fileHandle) {
-                showToast("Please connect to a data file before starting the bot.", "error");
+            if (!state.apiKeys.alpacaKey || !state.apiKeys.alpacaSecret || !state.apiKeys.geminiKey) {
+                showToast("Alpaca and Gemini API keys are required.", "error");
                 return;
             }
             state.isBotRunning = true;
@@ -284,9 +316,9 @@
             UI.startStopBtn.classList.replace('hover:bg-blue-700', 'hover:bg-red-700');
             updateStatus('Active', 'bg-green-500');
             logMessage('Bot started. Initializing cycles.', 'signal');
-            
+
             tradeCycle(); // Run immediately
-            state.tradeCycleInterval = setInterval(tradeCycle, 30 * 1000); // Trade cycle every 30 seconds
+            state.tradeCycleInterval = setInterval(tradeCycle, 30 * 1000); 
 
             runAiDrivenAnalysis(); // Run immediately
             const aiIntervalMs = (state.settings.aiAnalysisFreq || 30) * 60 * 1000;
@@ -304,14 +336,21 @@
             updateStatus('Idle', 'bg-red-500');
             logMessage('Bot stopped by user.', 'action');
         }
-        
+
         async function tradeCycle() {
             if (!state.isBotRunning) return;
-            
+
             try {
+                const today = new Date().toLocaleDateString();
+                if (state.lastTradeDate !== today) {
+                    logMessage(`New trading day detected. Resetting daily flags.`, 'signal');
+                    state.isFirstTradeMadeToday = false;
+                    state.lastTradeDate = today;
+                }
+
                 logMessage("Starting trade cycle...", "action");
                 await updatePortfolioAndPositions();
-                
+
                 if (isMarketOpen()) {
                     await runScalpingStrategy();
                 } else {
@@ -321,71 +360,55 @@
                 await recordPerformance();
                 await saveDataAndSettings();
                 logMessage("Trade cycle finished.", "action");
-                
+
             } catch (error) {
                 logMessage(`Trade cycle error: ${error.message}`, 'error');
                 console.error(error);
             }
         }
-        
-        // --- STRATEGIES ---
 
+        // --- STRATEGIES ---
         async function runAiDrivenAnalysis() {
-             if (!state.isBotRunning) return;
+            if (!state.isBotRunning) return;
             logMessage("Executing periodic AI market analysis.", "signal");
             try {
-                const newsData = await alphaVantageFetch({ function: 'NEWS_SENTIMENT', topics: 'earnings,financial_markets,economy_fiscal', limit: '50' });
-                const headlines = (newsData.feed || []).map(item => item.title).join('\n');
-                
-                if(!headlines){ logMessage("No recent headlines found for AI analysis.", "action"); return; }
+                const newsData = await alpacaFetch('/v1beta1/news?limit=50&sort=desc');
+                const headlines = (newsData.news || []).map(item => item.headline).join('\n');
 
-                const moversData = await alphaVantageFetch({ function: 'TOP_GAINERS_LOSERS' });
-                const candidates = (moversData.top_gainers || []).slice(0, 5); // Analyze fewer candidates more often
-                if (candidates.length === 0) {
-                    logMessage("Could not identify any market movers. AI analysis paused.", "action");
+                if (!headlines) {
+                    logMessage("No recent headlines found from Alpaca News API.", "action");
                     return;
                 }
 
+                const moversData = await alpacaFetch('/v1/screener/stocks/most-actives?top=10');
+                if (!moversData || moversData.most_actives.length === 0) {
+                     logMessage("Could not identify any market movers from Alpaca. AI analysis paused.", "action");
+                     return;
+                }
+                const candidates = moversData.most_actives;
+
                 const recommendedStocks = [];
                 for (const candidate of candidates) {
-                    const symbol = candidate.ticker;
+                    const symbol = candidate.symbol;
                     logMessage(`AI analyzing candidate: ${symbol}`, "action");
                     try {
-                        await new Promise(res => setTimeout(res, 20000)); // Rate limiting for Alpha Vantage
-
-                        const [intraday, rsi, overview, atr, macd] = await Promise.all([
-                            alphaVantageFetch({ function: 'TIME_SERIES_INTRADAY', symbol, interval: '5min', outputsize: 'compact' }),
-                            alphaVantageFetch({ function: 'RSI', symbol, interval: '5min', time_period: '14', series_type: 'close' }),
-                            alphaVantageFetch({ function: 'OVERVIEW', symbol }),
-                            alphaVantageFetch({ function: 'ATR', symbol, interval: '5min', time_period: '14' }),
-                            alphaVantageFetch({ function: 'MACD', symbol, interval: '5min', series_type: 'close' })
-                        ]);
-
-                        if (!intraday['Time Series (5min)'] || !rsi['Technical Analysis: RSI'] || !overview.PERatio || !atr['Technical Analysis: ATR'] || !macd['Technical Analysis: MACD']) {
-                            logMessage(`Insufficient data for ${symbol}. Skipping.`, "action");
+                        
+                        const indicators = await getIndicators(symbol);
+                        if (!indicators) {
+                            logMessage(`Insufficient technical data for ${symbol}. Skipping.`, "action");
                             continue;
                         }
-                        
-                        const stockData = {
-                            symbol,
-                            currentPrice: parseFloat(Object.values(intraday['Time Series (5min)'])[0]['4. close']),
-                            rsi: parseFloat(Object.values(rsi['Technical Analysis: RSI'])[0].RSI).toFixed(2),
-                            peRatio: overview.PERatio,
-                            atr: parseFloat(Object.values(atr['Technical Analysis: ATR'])[0].ATR).toFixed(4),
-                            macd: parseFloat(Object.values(macd['Technical Analysis: MACD'])[0].MACD).toFixed(4),
-                            macd_signal: parseFloat(Object.values(macd['Technical Analysis: MACD'])[0].MACD_Signal).toFixed(4),
-                        };
-                        
-                        const recommendation = await getAiRecommendationForStock(headlines, stockData);
+
+                        const recommendation = await getAiRecommendationForStock(headlines, indicators);
 
                         if (recommendation && recommendation.decision === 'BUY' && recommendation.confidence >= 7) {
-                            recommendedStocks.push({ ...recommendation, initialAtr: stockData.atr });
+                            recommendedStocks.push({ ...recommendation, ...indicators });
                         }
                     } catch (e) { logMessage(`Error analyzing ${symbol}: ${e.message}`, 'error'); }
                 }
 
                 if (recommendedStocks.length > 0) {
-                    state.aiWatchlist = recommendedStocks.sort((a,b) => b.confidence - a.confidence);
+                    state.aiWatchlist = recommendedStocks.sort((a, b) => b.confidence - a.confidence);
                     const tickers = state.aiWatchlist.map(s => `${s.ticker} (Conf: ${s.confidence})`).join(', ');
                     logMessage(`AI analysis complete. New watchlist: ${tickers}`, "signal");
                 } else {
@@ -395,10 +418,40 @@
             } catch (e) { logMessage(`AI analysis failed: ${e.message}`, 'error'); }
         }
         
+        async function getIndicators(symbol) {
+             try {
+                const now = new Date();
+                const start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days ago
+                
+                const [bars5m, bars1m] = await Promise.all([
+                     alpacaFetch(`/v2/stocks/${symbol}/bars?timeframe=5Min&start=${start}&limit=200`),
+                     alpacaFetch(`/v2/stocks/${symbol}/bars?timeframe=1Min&start=${start}&limit=200`),
+                ]);
+                
+                if (bars5m.bars.length < 20 || bars1m.bars.length < 20) return null;
+
+                const closePrices5m = bars5m.bars.map(b => b.c);
+                const closePrices1m = bars1m.bars.map(b => b.c);
+
+                return {
+                    symbol: symbol,
+                    currentPrice: closePrices5m[closePrices5m.length - 1],
+                    rsi5m: calculateRSI(closePrices5m),
+                    rsi1m: calculateRSI(closePrices1m),
+                    atr: calculateATR(bars5m.bars),
+                    macd: calculateMACD(closePrices5m),
+                };
+
+             } catch(e) {
+                console.error(`Failed to get indicators for ${symbol}:`, e);
+                return null;
+             }
+        }
+
         async function getAiRecommendationForStock(newsHeadlines, stockData) {
             const prompt = `As a Tier-1 Hedge Fund Analyst, provide a 'BUY' or 'HOLD' decision for an intraday scalping strategy.
                 Base your decision on a 50/50 weighting of general market news and the stock's specific quantitative data.
-                A 'BUY' is warranted if the stock shows strong technicals (bullish MACD, high ATR for volatility) and the news is supportive. The ideal entry is on a pullback (low RSI).
+                A 'BUY' is warranted if the stock shows strong technicals (bullish MACD, high ATR for volatility) and the news is supportive.
                 A 'HOLD' is warranted if data is mixed, neutral, or negative. Do not recommend 'SELL'.
 
                 Respond ONLY with the following JSON format:
@@ -412,9 +465,8 @@
                 --- DATA ---
                 **General Market News:** ${newsHeadlines}
                 **Stock Specifics for ${stockData.symbol}:**
-                - Price: ${stockData.currentPrice}, P/E Ratio: ${stockData.peRatio}
-                - 5-min RSI: ${stockData.rsi}, 5-min ATR: ${stockData.atr}
-                - 5-min MACD: ${stockData.macd}, 5-min MACD Signal: ${stockData.macd_signal}
+                - Price: ${stockData.currentPrice}, 5-min RSI: ${stockData.rsi5m.toFixed(2)}, 5-min ATR: ${stockData.atr.toFixed(4)}
+                - 5-min MACD: ${stockData.macd.macd.toFixed(4)}, 5-min MACD Signal: ${stockData.macd.signal.toFixed(4)}
                 --- END DATA ---
             `;
 
@@ -440,110 +492,95 @@
             }
         }
 
-
         async function runScalpingStrategy() {
             logMessage("Executing scalping scan.", "signal");
-            
-            // NOTE: Management of existing positions via polling is removed. 
-            // The broker now handles this with Stop orders. This section is now for new entries.
 
             if (state.aiWatchlist.length === 0) return;
-
             if (state.positions.length >= state.settings.maxConcurrentScalps) {
                 logMessage("Max concurrent positions reached.", "action");
                 return;
             }
-
-            // Look for new entries
+             
+            // First trade logic
+            if (!state.isFirstTradeMadeToday) {
+                logMessage("Attempting first trade of the day based on pure AI conviction.", "signal");
+                const stock = state.aiWatchlist[0];
+                if (stock && !state.positions.some(p => p.symbol === stock.ticker)) {
+                    await executeTrade(stock);
+                    state.isFirstTradeMadeToday = true;
+                    return; 
+                }
+            }
+            
+            // Subsequent trade logic
+            logMessage("Scanning for entries based on full technical analysis.", "action");
             for (const stock of state.aiWatchlist) {
-                const symbol = stock.ticker;
-                if (state.positions.some(p => p.symbol === symbol)) continue; // Already have position
+                if (state.positions.some(p => p.symbol === stock.ticker)) continue;
+                
+                const is5minTrendBullish = stock.macd.macd > stock.macd.signal;
+                const isRsiPullback = stock.rsi1m < 40; // Simplified pullback logic
 
-                try {
-                    await new Promise(res => setTimeout(res, 20000)); // Rate limiting
-                    
-                    const [macd5min, rsi1minData] = await Promise.all([
-                        alphaVantageFetch({ function: 'MACD', symbol, interval: '5min', series_type: 'close' }),
-                        alphaVantageFetch({ function: 'RSI', symbol, interval: '1min', time_period: '14', series_type: 'close' })
-                    ]);
-
-                    const macd5minLatest = Object.values(macd5min['Technical Analysis: MACD'])[0];
-                    const is5minTrendBullish = parseFloat(macd5minLatest.MACD) > parseFloat(macd5minLatest.MACD_Signal);
-                    
-                    const rsi1minSeries = Object.values(rsi1minData['Technical Analysis: RSI']);
-                    const rsi1minLatest = parseFloat(rsi1minSeries[0].RSI);
-                    const rsi1minPrevious = parseFloat(rsi1minSeries[1].RSI);
-
-                    const isRsiPullback = rsi1minPrevious < 40 && rsi1minLatest > 40;
-
-                    if (is5minTrendBullish && isRsiPullback) {
-                        logMessage(`Entry signal confirmed for ${symbol}`, 'buy');
-                        
-                        const quote = await alpacaFetch(`/stocks/${symbol}/quotes/latest`);
-                        const currentPrice = quote.quote.ap; // Use ask price for sizing
-                        
-                        const capitalToRisk = state.portfolio.equity * (state.settings.riskPerTrade / 100);
-                        const stopLossDistance = 2 * stock.initialAtr;
-                        const quantity = Math.floor(capitalToRisk / stopLossDistance);
-                        const stopPrice = (currentPrice - stopLossDistance).toFixed(2);
-
-                        if (quantity > 0) {
-                            logMessage(`Sizing trade for ${symbol}: ${quantity} shares, stop at $${stopPrice}`, 'action');
-                            
-                            // Place the limit order with an offset to increase fill probability
-                            const limitPrice = (quote.quote.bp * (1 + (state.settings.limitOrderOffset / 100))).toFixed(2);
-                            
-                            await placeBracketOrder(symbol, quantity, 'buy', limitPrice, stopPrice);
-                        }
-                    }
-                } catch (e) {
-                     logMessage(`Could not analyze ${symbol} for entry: ${e.message}`, 'error');
+                if (is5minTrendBullish && isRsiPullback) {
+                    logMessage(`Entry signal confirmed for ${stock.ticker} (5m Trend Bullish, 1m RSI < 40)`, 'buy');
+                    await executeTrade(stock);
                 }
             }
         }
         
-        async function placeBracketOrder(symbol, qty, side, limit_price, stop_price) {
-             const order = {
-                symbol,
-                qty,
-                side,
-                type: 'limit',
-                time_in_force: 'day',
-                limit_price,
-                order_class: 'bracket',
-                stop_loss: {
-                    stop_price,
-                },
-             };
-             logMessage(`Placing bracket order: ${side.toUpperCase()} ${qty} ${symbol} @${limit_price} with stop @${stop_price}`, 'action');
+        async function executeTrade(stock) {
              try {
-                 const conf = await alpacaFetch('/orders', { method: 'POST', body: JSON.stringify(order) });
-                 logMessage(`Bracket order for ${symbol} submitted. ID: ${conf.id}.`, side === 'buy' ? 'buy' : 'sell');
-                 showToast(`Order placed: ${side.toUpperCase()} ${qty} ${symbol}`, 'success');
-                 await new Promise(res => setTimeout(res, 2000));
-                 await updatePortfolioAndPositions();
-                 return conf;
-             } catch (e) {
-                 logMessage(`Bracket order failed for ${symbol}: ${e.message}`, 'error');
-                 showToast(`Order failed for ${symbol}`, 'error');
-                 return null;
+                const symbol = stock.ticker;
+                const quote = await alpacaFetch(`/v2/stocks/${symbol}/quotes/latest`);
+                const currentPrice = quote.quote.ap;
+                
+                const capitalToRisk = state.portfolio.equity * (state.settings.riskPerTrade / 100);
+                const stopLossDistance = 2 * stock.atr;
+                const quantity = Math.floor(capitalToRisk / stopLossDistance);
+                const stopPrice = (currentPrice - stopLossDistance).toFixed(2);
+
+                if (quantity > 0) {
+                    logMessage(`Sizing trade for ${symbol}: ${quantity} shares, stop at $${stopPrice}`, 'action');
+                    const limitPrice = (quote.quote.bp * (1 + (state.settings.limitOrderOffset / 100))).toFixed(2);
+                    await placeBracketOrder(symbol, quantity, 'buy', limitPrice, stopPrice);
+                }
+             } catch(e) {
+                logMessage(`Could not execute trade for ${stock.ticker}: ${e.message}`, 'error');
              }
+        }
+
+        async function placeBracketOrder(symbol, qty, side, limit_price, stop_price) {
+            const order = {
+                symbol, qty, side, type: 'limit', time_in_force: 'day',
+                limit_price, order_class: 'bracket',
+                stop_loss: { stop_price },
+            };
+            logMessage(`Placing bracket order: ${side.toUpperCase()} ${qty} ${symbol} @${limit_price} with stop @${stop_price}`, 'action');
+            try {
+                const conf = await alpacaFetch('/v2/orders', { method: 'POST', body: JSON.stringify(order) });
+                logMessage(`Bracket order for ${symbol} submitted. ID: ${conf.id}.`, side === 'buy' ? 'buy' : 'sell');
+                showToast(`Order placed: ${side.toUpperCase()} ${qty} ${symbol}`, 'success');
+                await new Promise(res => setTimeout(res, 2000));
+                await updatePortfolioAndPositions();
+                return conf;
+            } catch (e) {
+                logMessage(`Bracket order failed for ${symbol}: ${e.message}`, 'error');
+                showToast(`Order failed for ${symbol}`, 'error');
+                return null;
+            }
         }
 
         async function closePosition(symbol) {
             logMessage(`Attempting to cancel open orders and liquidate ${symbol}...`, 'action');
             try {
-                // 1. Cancel all open orders for the symbol to avoid conflicts.
-                await alpacaFetch(`/orders?status=open&symbols=${symbol}`, { method: 'DELETE' });
+                await alpacaFetch(`/v2/orders?status=open&symbols=${symbol}`, { method: 'DELETE' });
                 logMessage(`Cancelled open orders for ${symbol}.`, 'action');
 
-                // 2. Liquidate the position at market price.
-                await alpacaFetch(`/positions/${symbol}`, { method: 'DELETE' });
+                await alpacaFetch(`/v2/positions/${symbol}`, { method: 'DELETE' });
                 logMessage(`Liquidation order for ${symbol} submitted.`, 'sell');
                 showToast(`Closing position in ${symbol}.`, 'success');
-                 await new Promise(res => setTimeout(res, 2000));
-                 await updatePortfolioAndPositions();
-            } catch(e) {
+                await new Promise(res => setTimeout(res, 2000));
+                await updatePortfolioAndPositions();
+            } catch (e) {
                 logMessage(`Failed to close position for ${symbol}: ${e.message}`, 'error');
                 showToast(`Failed to close ${symbol}.`, 'error');
             }
@@ -554,23 +591,24 @@
             try {
                 const response = await fetch(url, options);
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        showToast("Authentication Failed. Check your Alpaca API Keys in Settings.", "error");
+                        if (state.isBotRunning) stopBot();
+                        throw new Error(`Authentication Failed (401). Please check your API keys.`);
+                    }
                     if (response.status === 429 && retries > 0) {
-                        logMessage(`Rate limit hit. Retrying in ${delay/1000}s...`, 'error');
+                        logMessage(`Rate limit hit. Retrying in ${delay / 1000}s...`, 'error');
                         await new Promise(res => setTimeout(res, delay));
                         return fetchWithBackoff(url, options, retries - 1, delay * 2);
                     }
-                     const errorText = await response.text();
+                    const errorText = await response.text();
                     throw new Error(`API Error (${response.status}): ${errorText}`);
                 }
-                // Alpaca DELETE can return 204 No Content
                 if (response.status === 204) return true;
-                
-                const data = await response.json();
-                if(data.Note) throw new Error("AlphaVantage API limit reached. Try again in a minute.");
-                if(data['Error Message']) throw new Error(`AlphaVantage: ${data['Error Message']}`);
-                return data;
+
+                return await response.json();
             } catch (error) {
-                if (retries > 0 && !error.message.includes("limit")) {
+                if (retries > 0 && !error.message.includes("401")) {
                     await new Promise(res => setTimeout(res, delay));
                     return fetchWithBackoff(url, options, retries - 1, delay * 2);
                 }
@@ -579,91 +617,144 @@
         }
 
         async function alpacaFetch(endpoint, options = {}) {
-            const url = `https://paper-api.alpaca.markets/v2${endpoint}`;
+            let url;
+            if (endpoint.startsWith('/v1beta1/news') || endpoint.startsWith('/v2/stocks') || endpoint.startsWith('/v1/')) {
+                url = `https://data.alpaca.markets${endpoint}`;
+            } else {
+                url = `https://paper-api.alpaca.markets${endpoint}`;
+            }
+
             const headers = {
                 'APCA-API-KEY-ID': state.apiKeys.alpacaKey,
                 'APCA-API-SECRET-KEY': state.apiKeys.alpacaSecret,
-                'Content-Type': 'application/json'
             };
+
+            if (options.body) {
+                headers['Content-Type'] = 'application/json';
+            }
+
             return fetchWithBackoff(url, { ...options, headers });
         }
 
-        async function alphaVantageFetch(params) {
-            const query = new URLSearchParams({ ...params, apikey: state.apiKeys.alphaVantageKey }).toString();
-            const url = `https://www.alphavantage.co/query?${query}`;
-            return fetchWithBackoff(url, {});
-        }
-
         async function updatePortfolioAndPositions() {
-             logMessage("Fetching latest portfolio and position data...", "action");
-             try {
-                 const [account, positions, orders] = await Promise.all([
-                     alpacaFetch('/account'), 
-                     alpacaFetch('/positions'),
-                     alpacaFetch('/orders?status=open&nested=true') // Get open orders to find stops
-                 ]);
-             
-                 if(state.portfolio.initial_equity === 0 && account.equity) {
-                     state.portfolio.initial_equity = parseFloat(account.equity);
-                 }
-                 state.portfolio.equity = parseFloat(account.equity);
-                 state.portfolio.last_equity = parseFloat(account.last_equity);
-                 
-                 // Map stop prices from open orders to their positions
-                 state.positions = positions.map(p => {
-                     const bracketOrder = orders.find(o => o.symbol === p.symbol && o.order_class === 'bracket');
-                     const stopOrder = bracketOrder ? bracketOrder.legs.find(leg => leg.order_type === 'stop') : null;
-                     return { ...p, stop_price: stopOrder ? stopOrder.stop_price : null };
-                 });
-             
-                 updateDashboardUI();
-                 renderPositionsTable();
-              } catch (e) {
-                 logMessage(`Could not update from Alpaca: ${e.message}`, 'error');
-                 stopBot();
-              }
+            logMessage("Fetching latest portfolio and position data...", "action");
+            try {
+                const [account, positions, orders] = await Promise.all([
+                    alpacaFetch('/v2/account'),
+                    alpacaFetch('/v2/positions'),
+                    alpacaFetch('/v2/orders?status=open&nested=true')
+                ]);
+
+                if (state.portfolio.initial_equity === 0 && account.equity) {
+                    state.portfolio.initial_equity = parseFloat(account.equity);
+                }
+                state.portfolio.equity = parseFloat(account.equity);
+                state.portfolio.last_equity = parseFloat(account.last_equity);
+
+                state.positions = positions.map(p => {
+                    const bracketOrder = orders.find(o => o.symbol === p.symbol && o.order_class === 'bracket');
+                    const stopOrder = bracketOrder ? bracketOrder.legs.find(leg => leg.order_type === 'stop') : null;
+                    return { ...p, stop_price: stopOrder ? stopOrder.stop_price : null };
+                });
+
+                updateDashboardUI();
+                renderPositionsTable();
+            } catch (e) {
+                logMessage(`Could not update from Alpaca: ${e.message}`, 'error');
+                if (state.isBotRunning) stopBot();
+            }
+        }
+        
+        // --- INDICATOR CALCULATIONS ---
+        function calculateRSI(prices, period = 14) {
+            let gains = 0;
+            let losses = 0;
+            for (let i = 1; i < prices.length; i++) {
+                const diff = prices[i] - prices[i - 1];
+                if (i <= period) {
+                    if (diff >= 0) { gains += diff; } else { losses -= diff; }
+                } else {
+                    gains = (gains * (period - 1) + (diff >= 0 ? diff : 0)) / period;
+                    losses = (losses * (period - 1) + (diff < 0 ? -diff : 0)) / period;
+                }
+            }
+            if (losses === 0) return 100;
+            const rs = gains / losses;
+            return 100 - (100 / (1 + rs));
         }
 
-        // --- DATA PERSISTENCE ---
-        async function getAndSetFileHandle() {
-            try {
-                const handle = await window.showSaveFilePicker({
-                    suggestedName: 'trading_bot_data.json',
-                    types: [{
-                        description: 'JSON Files',
-                        accept: { 'application/json': ['.json'] },
-                    }],
-                });
-                state.fileHandle = handle;
-                UI.settings.fileStatus.textContent = `Status: Connected to ${handle.name}`;
-                UI.settings.fileStatus.classList.remove('text-gray-500');
-                UI.settings.fileStatus.classList.add('text-green-400');
-                logMessage(`Connected to data file: ${handle.name}`, "action");
-                showToast("Data file connected successfully.", "success");
-                await loadDataFromFile(); // Load data immediately after connecting
-            } catch (error) {
-                if (error.name !== 'AbortError') {
-                    logMessage(`Error connecting to file: ${error.message}`, "error");
-                    showToast("Could not connect to data file.", "error");
+        function calculateATR(bars, period = 14) {
+            let trs = [];
+            for (let i = 1; i < bars.length; i++) {
+                const high = bars[i].h;
+                const low = bars[i].l;
+                const prevClose = bars[i - 1].c;
+                const tr = Math.max(high - low, Math.abs(high - prevClose), Math.abs(low - prevClose));
+                trs.push(tr);
+            }
+            const atr = trs.slice(-period).reduce((a, b) => a + b, 0) / period;
+            return atr;
+        }
+
+        function calculateMACD(prices, shortPeriod = 12, longPeriod = 26, signalPeriod = 9) {
+            const calculateEMA = (data, period) => {
+                const k = 2 / (period + 1);
+                let ema = [data[0]];
+                for (let i = 1; i < data.length; i++) {
+                    ema.push(data[i] * k + ema[i - 1] * (1 - k));
                 }
+                return ema;
+            };
+
+            const shortEMA = calculateEMA(prices, shortPeriod);
+            const longEMA = calculateEMA(prices, longPeriod);
+            
+            let macdLine = [];
+            for (let i = 0; i < longEMA.length; i++) {
+                 const offset = shortEMA.length - longEMA.length;
+                 macdLine.push(shortEMA[i + offset] - longEMA[i]);
+            }
+
+            const signalLine = calculateEMA(macdLine, signalPeriod);
+            const macd = macdLine[macdLine.length-1];
+            const signal = signalLine[signalLine.length-1];
+            return { macd, signal, histogram: macd - signal };
+        }
+
+
+        // --- DATA PERSISTENCE (ORIGIN PRIVATE FILE SYSTEM) ---
+        async function getOpfsFileHandle(create = false) {
+            try {
+                const root = await navigator.storage.getDirectory();
+                const fileHandle = await root.getFileHandle('trading_bot_data.json', { create });
+                return fileHandle;
+            } catch (error) {
+                if (error.name === 'NotFoundError') return null;
+                logMessage(`Could not access secure file storage: ${error.message}`, "error");
+                return null;
             }
         }
 
         async function loadDataFromFile() {
-            if (!state.fileHandle) return;
+            const fileHandle = await getOpfsFileHandle();
+            if (!fileHandle) {
+                logMessage("No local data file found. A new one will be created on save.", "action");
+                return;
+            }
+
             try {
-                const file = await state.fileHandle.getFile();
+                const file = await fileHandle.getFile();
                 const contents = await file.text();
 
                 if (contents) {
                     const data = JSON.parse(contents);
-                    
-                    if(data.settings) {
-                        applySettings({ settings: data.settings, apiKeys: state.apiKeys }); // Keep existing API keys from local storage
+
+                    if (data.settings) {
+                        applySettings({ settings: data.settings, apiKeys: state.apiKeys });
                     }
 
                     if (data.performanceData && data.initialEquity) {
-                        state.performanceData = data.performanceData.map(d => ({...d, x: new Date(d.x)}));
+                        state.performanceData = data.performanceData.map(d => ({ ...d, x: new Date(d.x) }));
                         state.portfolio.initial_equity = data.initialEquity;
                         if (state.performanceData.length > 0) {
                             const lastEntry = state.performanceData[state.performanceData.length - 1];
@@ -672,42 +763,48 @@
                         }
                     }
                     
+                    state.isFirstTradeMadeToday = data.isFirstTradeMadeToday || false;
+                    state.lastTradeDate = data.lastTradeDate || null;
+
+
                     updatePerformanceChart();
                     updateDashboardUI();
-                    logMessage(`Data loaded from ${state.fileHandle.name}.`, "action");
-                } else {
-                    logMessage(`Data file is empty. Will save new data on the next cycle.`, "action");
+                    logMessage(`Data loaded from secure storage.`, "action");
                 }
             } catch (error) {
                 logMessage(`Failed to read from data file: ${error.message}`, "error");
-                showToast("Failed to load data from file.", "error");
             }
         }
 
         async function saveDataAndSettings(force = false) {
-            if (!state.fileHandle) return;
-            if (!state.isBotRunning && !force) return; // Only save if running or forced
+            if (!state.isBotRunning && !force) return;
 
-            logMessage("Auto-saving data to file...", "action");
+            const fileHandle = await getOpfsFileHandle(true); // create = true
+            if (!fileHandle) {
+                logMessage("Automatic save failed: Could not get file handle.", "error");
+                return;
+            }
 
             try {
-                 const dataToSave = {
+                const dataToSave = {
                     performanceData: state.performanceData,
                     initialEquity: state.portfolio.initial_equity,
                     settings: state.settings,
+                    isFirstTradeMadeToday: state.isFirstTradeMadeToday,
+                    lastTradeDate: state.lastTradeDate,
                     lastUpdated: new Date().toISOString()
                 };
                 const dataStr = JSON.stringify(dataToSave, null, 2);
 
-                const writable = await state.fileHandle.createWritable();
+                const writable = await fileHandle.createWritable();
                 await writable.write(dataStr);
                 await writable.close();
-                
-                // Also save API keys to local storage
+
                 localStorage.setItem(`tradingBotSettings_${state.userId}`, JSON.stringify({ apiKeys: state.apiKeys, settings: state.settings }));
-                
-                if(force) {
-                    showToast("Settings saved to file.", "success");
+
+                if (force) {
+                    logMessage("Data and settings saved to secure storage.", "action");
+                    showToast("Settings saved successfully.", "success");
                 }
 
             } catch (error) {
@@ -720,7 +817,6 @@
                 apiKeys: {
                     alpacaKey: UI.settings.alpacaKey.value,
                     alpacaSecret: UI.settings.alpacaSecret.value,
-                    alphaVantageKey: UI.settings.alphaVantageKey.value,
                     geminiKey: UI.settings.geminiKey.value,
                 },
                 settings: {
@@ -732,22 +828,16 @@
             };
             localStorage.setItem(`tradingBotSettings_${state.userId}`, JSON.stringify(settingsData));
             applySettings(settingsData);
-            showToast("Settings saved and applied!", "success");
-
-            if (state.fileHandle) {
-                await saveDataAndSettings(true); // Force save settings to file immediately
-            }
+            await saveDataAndSettings(true);
         }
-        
+
         async function loadSettings() {
             const localSettings = localStorage.getItem(`tradingBotSettings_${state.userId}`);
             if (localSettings) {
                 applySettings(JSON.parse(localSettings));
-            } else {
-                logMessage("No local settings found. Please configure.", "action");
             }
         }
-        
+
         function applySettings(data) {
             if (!data) return;
             if (data.apiKeys) {
@@ -756,10 +846,9 @@
             if (data.settings) {
                 state.settings = { ...state.settings, ...data.settings };
             }
-            
+
             UI.settings.alpacaKey.value = state.apiKeys.alpacaKey || '';
             UI.settings.alpacaSecret.value = state.apiKeys.alpacaSecret || '';
-            UI.settings.alphaVantageKey.value = state.apiKeys.alphaVantageKey || '';
             UI.settings.geminiKey.value = state.apiKeys.geminiKey || '';
             UI.settings.riskPerTrade.value = state.settings.riskPerTrade;
             UI.settings.maxConcurrentScalps.value = state.settings.maxConcurrentScalps;
@@ -776,14 +865,13 @@
 
         // --- UI & RENDERING ---
         function setupEventListeners() {
-            window.addEventListener('beforeunload', (e) => {
-                if(state.isBotRunning) {
+            window.addEventListener('pagehide', (e) => {
+                if (state.isBotRunning) {
                     saveDataAndSettings(true);
                 }
             });
             UI.startStopBtn.addEventListener('click', () => state.isBotRunning ? stopBot() : startBot());
             UI.settings.saveBtn.addEventListener('click', saveSettings);
-            UI.settings.connectFileBtn.addEventListener('click', getAndSetFileHandle);
             UI.tabs.forEach(tab => {
                 tab.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -806,16 +894,16 @@
                 }
             });
         }
-        
+
         function updateDashboardUI() {
-             UI.portfolioValue.textContent = `$${state.portfolio.equity.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-             const todayPL = state.portfolio.equity - state.portfolio.last_equity;
-             UI.todayPL.textContent = `$${todayPL.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-             UI.todayPL.className = `text-3xl font-bold mt-1 ${todayPL >= 0 ? 'text-green-400' : 'text-red-400'}`;
-            
-             const totalPL = state.portfolio.initial_equity > 0 ? state.portfolio.equity - state.portfolio.initial_equity : 0.00;
-             UI.totalPL.textContent = `$${totalPL.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-             UI.totalPL.className = `text-3xl font-bold mt-1 ${totalPL >= 0 ? 'text-green-400' : 'text-red-400'}`;
+            UI.portfolioValue.textContent = `$${state.portfolio.equity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const todayPL = state.portfolio.equity - state.portfolio.last_equity;
+            UI.todayPL.textContent = `$${todayPL.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            UI.todayPL.className = `text-3xl font-bold mt-1 ${todayPL >= 0 ? 'text-green-400' : 'text-red-400'}`;
+
+            const totalPL = state.portfolio.initial_equity > 0 ? state.portfolio.equity - state.portfolio.initial_equity : 0.00;
+            UI.totalPL.textContent = `$${totalPL.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            UI.totalPL.className = `text-3xl font-bold mt-1 ${totalPL >= 0 ? 'text-green-400' : 'text-red-400'}`;
         }
 
         function renderPositionsTable() {
@@ -846,13 +934,15 @@
             const ctx = UI.performanceChartCanvas.getContext('2d');
             performanceChart = new Chart(ctx, {
                 type: 'line',
-                data: { datasets: [{
-                    label: 'Portfolio Value',
-                    data: state.performanceData,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 2, pointRadius: 0, tension: 0.1, fill: true,
-                }]},
+                data: {
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: state.performanceData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2, pointRadius: 0, tension: 0.1, fill: true,
+                    }]
+                },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     scales: {
@@ -863,7 +953,7 @@
                 }
             });
         }
-        
+
         function updatePerformanceChart() {
             if (!performanceChart) return;
             performanceChart.data.datasets[0].data = state.performanceData;
@@ -900,7 +990,7 @@
             UI.statusText.textContent = text;
             UI.statusDot.className = `h-3 w-3 rounded-full ${color} mr-2`;
         }
-        
+
         function setLoadingText(text) {
             UI.loadingText.textContent = text;
         }
@@ -922,5 +1012,6 @@
         }
     </script>
 </body>
+
 </html>
 

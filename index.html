@@ -136,7 +136,7 @@
                         <p id="total-pl" class="text-3xl font-bold text-white mt-1">$0.00</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+                <div class="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-6">
                     <div class="xl:col-span-3 glass-widget rounded-2xl p-6 shadow-2xl h-96">
                         <h3 class="text-xl font-semibold mb-4 text-white">Portfolio Performance</h3>
                         <canvas id="performance-chart"></canvas>
@@ -146,6 +146,15 @@
                         <div id="event-log" class="flex-grow overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                             <p class="text-gray-400 italic">Bot is idle. Configure settings and press Start.</p>
                         </div>
+                    </div>
+                </div>
+                <!-- AI Watchlist Widget -->
+                <div class="glass-widget rounded-2xl p-6 shadow-2xl">
+                    <h3 class="text-xl font-semibold mb-4 text-white">AI Watchlist</h3>
+                    <div id="ai-watchlist-container"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <p class="text-gray-500 italic md:col-span-2 lg:col-span-3 xl:col-span-4">AI analysis has not
+                            run yet.</p>
                     </div>
                 </div>
             </div>
@@ -184,17 +193,20 @@
                         <h3 class="text-xl font-semibold text-white mb-4">API Credentials</h3>
                         <div class="space-y-4">
                             <div>
-                                <label for="alpaca-key" class="block mb-1 text-sm font-medium text-gray-400">Alpaca Key ID</label>
+                                <label for="alpaca-key" class="block mb-1 text-sm font-medium text-gray-400">Alpaca Key
+                                    ID</label>
                                 <input type="text" id="alpaca-key" placeholder="Enter your Alpaca Key ID"
                                     class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             </div>
                             <div>
-                                <label for="alpaca-secret" class="block mb-1 text-sm font-medium text-gray-400">Alpaca Secret Key</label>
+                                <label for="alpaca-secret" class="block mb-1 text-sm font-medium text-gray-400">Alpaca
+                                    Secret Key</label>
                                 <input type="password" id="alpaca-secret" placeholder="Enter your Alpaca Secret Key"
                                     class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             </div>
                             <div>
-                                <label for="gemini-key" class="block mb-1 text-sm font-medium text-gray-400">Gemini API Key</label>
+                                <label for="gemini-key" class="block mb-1 text-sm font-medium text-gray-400">Gemini API
+                                    Key</label>
                                 <input type="password" id="gemini-key" placeholder="Enter your Gemini API Key"
                                     class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             </div>
@@ -232,6 +244,27 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Data Management Widget -->
+                    <div class="md:col-span-2 glass-widget rounded-2xl p-6 shadow-2xl">
+                        <h3 class="text-xl font-semibold text-white mb-4">Application Data Management</h3>
+                        <p class="text-sm text-gray-400 mb-4">Manage the bot's performance and trade history file stored
+                            securely in your browser.</p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button id="export-data-btn"
+                                class="w-full sm:w-auto flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-5 rounded-lg transition-all duration-200">Export
+                                Data</button>
+                            <button id="import-data-btn"
+                                class="w-full sm:w-auto flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-5 rounded-lg transition-all duration-200">Import
+                                Data</button>
+                            <input type="file" id="import-data-input" class="hidden" accept=".json">
+                            <button id="clear-data-btn"
+                                class="w-full sm:w-auto flex-1 bg-red-800 hover:bg-red-900 text-white font-bold py-3 px-5 rounded-lg transition-all duration-200">Clear
+                                All Data</button>
+                        </div>
+                    </div>
+
+
                     <div class="md:col-span-2 flex justify-end items-end">
                         <button id="save-settings-btn"
                             class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg">Save
@@ -261,6 +294,7 @@
             toastContainer: document.getElementById('toast-container'),
             tabs: document.getElementById('tabs').querySelectorAll('a'),
             tabContents: document.getElementById('tab-content').querySelectorAll('div[id$="-content"]'),
+            aiWatchlistContainer: document.getElementById('ai-watchlist-container'),
             settings: {
                 alpacaKey: document.getElementById('alpaca-key'),
                 alpacaSecret: document.getElementById('alpaca-secret'),
@@ -270,6 +304,12 @@
                 limitOrderOffset: document.getElementById('limit-order-offset'),
                 aiAnalysisFreq: document.getElementById('ai-analysis-freq'),
                 saveBtn: document.getElementById('save-settings-btn'),
+            },
+            data: {
+                exportBtn: document.getElementById('export-data-btn'),
+                importBtn: document.getElementById('import-data-btn'),
+                importInput: document.getElementById('import-data-input'),
+                clearBtn: document.getElementById('clear-data-btn'),
             }
         };
 
@@ -327,7 +367,7 @@
             logMessage('Bot started. Initializing cycles.', 'signal');
 
             tradeCycle(); // Run immediately
-            state.tradeCycleInterval = setInterval(tradeCycle, 30 * 1000); 
+            state.tradeCycleInterval = setInterval(tradeCycle, 30 * 1000);
 
             runAiDrivenAnalysis(); // Run immediately
             const aiIntervalMs = (state.settings.aiAnalysisFreq || 30) * 60 * 1000;
@@ -388,12 +428,12 @@
                     logMessage("No recent headlines found from Alpaca News API.", "action");
                     return;
                 }
-                
+
                 const moversData = await alpacaFetch('/v1beta1/screener/stocks/most-actives?top=10');
-                
+
                 if (!moversData || moversData.most_actives.length === 0) {
-                     logMessage("Could not identify any market movers from Alpaca. AI analysis paused.", "action");
-                     return;
+                    logMessage("Could not identify any market movers from Alpaca. AI analysis paused.", "action");
+                    return;
                 }
                 const candidates = moversData.most_actives;
 
@@ -402,7 +442,7 @@
                     const symbol = candidate.symbol;
                     logMessage(`AI analyzing candidate: ${symbol}`, "action");
                     try {
-                        
+
                         const indicators = await getIndicators(symbol);
                         if (!indicators) {
                             logMessage(`Insufficient technical data for ${symbol}. Skipping.`, "action");
@@ -425,19 +465,21 @@
                     logMessage("AI analysis did not yield any new high-confidence recommendations.", "action");
                 }
 
+                renderAiWatchlist();
+
             } catch (e) { logMessage(`AI analysis failed: ${e.message}`, 'error'); }
         }
-        
+
         async function getIndicators(symbol) {
-             try {
+            try {
                 const now = new Date();
                 const start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days ago
-                
+
                 const [bars5m, bars1m] = await Promise.all([
-                     alpacaFetch(`/v2/stocks/${symbol}/bars?timeframe=5Min&start=${start}&limit=200`),
-                     alpacaFetch(`/v2/stocks/${symbol}/bars?timeframe=1Min&start=${start}&limit=200`),
+                    alpacaFetch(`/v2/stocks/${symbol}/bars?timeframe=5Min&start=${start}&limit=200`),
+                    alpacaFetch(`/v2/stocks/${symbol}/bars?timeframe=1Min&start=${start}&limit=200`),
                 ]);
-                
+
                 if (!bars5m || !bars1m || bars5m.bars.length < 20 || bars1m.bars.length < 20) return null;
 
                 const closePrices5m = bars5m.bars.map(b => b.c);
@@ -452,10 +494,10 @@
                     macd: calculateMACD(closePrices5m),
                 };
 
-             } catch(e) {
+            } catch (e) {
                 console.error(`Failed to get indicators for ${symbol}:`, e);
                 return null;
-             }
+            }
         }
 
         async function getAiRecommendationForStock(newsHeadlines, stockData) {
@@ -510,7 +552,7 @@
                 logMessage("Max concurrent positions reached.", "action");
                 return;
             }
-             
+
             // First trade logic
             if (!state.isFirstTradeMadeToday) {
                 logMessage("Attempting first trade of the day based on pure AI conviction.", "signal");
@@ -518,45 +560,48 @@
                 if (stock && !state.positions.some(p => p.symbol === stock.ticker)) {
                     await executeTrade(stock);
                     state.isFirstTradeMadeToday = true;
-                    return; 
+                    return;
                 }
             }
-            
+
             // Subsequent trade logic
-            logMessage("Scanning for entries based on full technical analysis.", "action");
+            logMessage("Scanning for entries based on technical analysis.", "action");
             for (const stock of state.aiWatchlist) {
                 if (state.positions.some(p => p.symbol === stock.ticker)) continue;
-                
+
                 const is5minTrendBullish = stock.macd.macd > stock.macd.signal;
-                const isRsiPullback = stock.rsi1m < 40; // Simplified pullback logic
+                // --- MODIFIED CONDITION ---
+                // The original condition (rsi1m < 40) was too strict, leading to few trades.
+                // Relaxing it to < 50 allows the bot to enter on less extreme pullbacks, increasing activity.
+                const isRsiPullback = stock.rsi1m < 45; 
 
                 if (is5minTrendBullish && isRsiPullback) {
-                    logMessage(`Entry signal confirmed for ${stock.ticker} (5m Trend Bullish, 1m RSI < 40)`, 'buy');
+                    logMessage(`Entry signal for ${stock.ticker}: 5m MACD is bullish and 1m RSI is ${stock.rsi1m.toFixed(2)} (below 50)`, 'buy');
                     await executeTrade(stock);
                 }
             }
         }
-        
+
         async function executeTrade(stock) {
-             try {
+            try {
                 const symbol = stock.ticker;
                 const quote = await alpacaFetch(`/v2/stocks/${symbol}/quotes/latest`);
                 const currentPrice = quote.quote.ap;
-                
+
                 const capitalToRisk = state.portfolio.equity * (state.settings.riskPerTrade / 100);
                 const stopLossDistance = 2 * stock.atr;
                 const quantity = Math.floor(capitalToRisk / stopLossDistance);
                 const stopPrice = (currentPrice - stopLossDistance).toFixed(2);
-                const takeProfitPrice = (currentPrice + (stopLossDistance * 1.5)).toFixed(2); 
+                const takeProfitPrice = (currentPrice + (stopLossDistance * 1.5)).toFixed(2);
 
                 if (quantity > 0) {
                     logMessage(`Sizing trade for ${symbol}: ${quantity} shares, SL at $${stopPrice}, TP at $${takeProfitPrice}`, 'action');
                     const limitPrice = (quote.quote.bp * (1 + (state.settings.limitOrderOffset / 100))).toFixed(2);
                     await placeBracketOrder(symbol, quantity, 'buy', limitPrice, stopPrice, takeProfitPrice);
                 }
-             } catch(e) {
+            } catch (e) {
                 logMessage(`Could not execute trade for ${stock.ticker}: ${e.message}`, 'error');
-             }
+            }
         }
 
         async function placeBracketOrder(symbol, qty, side, limit_price, stop_price, take_profit_price) {
@@ -564,7 +609,7 @@
                 symbol, qty, side, type: 'limit', time_in_force: 'day',
                 limit_price, order_class: 'bracket',
                 stop_loss: { stop_price },
-                take_profit: { limit_price: take_profit_price } 
+                take_profit: { limit_price: take_profit_price }
             };
             logMessage(`Placing bracket order: ${side.toUpperCase()} ${qty} ${symbol} @${limit_price} with SL @${stop_price} and TP @${take_profit_price}`, 'action');
             try {
@@ -676,7 +721,7 @@
                 if (state.isBotRunning) stopBot();
             }
         }
-        
+
         // --- INDICATOR CALCULATIONS ---
         function calculateRSI(prices, period = 14) {
             if (prices.length < period) return 50; // Not enough data
@@ -687,12 +732,12 @@
                 const diff = prices[i] - prices[i - 1];
                 if (diff >= 0) { gains += diff; } else { losses -= diff; }
             }
-            
+
             let avgGain = gains / period;
             let avgLoss = losses / period;
 
             for (let i = period + 1; i < prices.length; i++) {
-                const diff = prices[i] - prices[i-1];
+                const diff = prices[i] - prices[i - 1];
                 if (diff >= 0) {
                     avgGain = (avgGain * (period - 1) + diff) / period;
                     avgLoss = (avgLoss * (period - 1)) / period;
@@ -701,14 +746,14 @@
                     avgLoss = (avgLoss * (period - 1) - diff) / period;
                 }
             }
-            
+
             if (avgLoss === 0) return 100;
             const rs = avgGain / avgLoss;
             return 100 - (100 / (1 + rs));
         }
 
         function calculateATR(bars, period = 14) {
-            if(bars.length < period) return 0;
+            if (bars.length < period) return 0;
             let trs = [];
             for (let i = 1; i < bars.length; i++) {
                 const high = bars[i].h;
@@ -722,7 +767,7 @@
         }
 
         function calculateMACD(prices, shortPeriod = 12, longPeriod = 26, signalPeriod = 9) {
-            if (prices.length < longPeriod) return { macd: 0, signal: 0, histogram: 0};
+            if (prices.length < longPeriod) return { macd: 0, signal: 0, histogram: 0 };
             const calculateEMA = (data, period) => {
                 const k = 2 / (period + 1);
                 let ema = [data[0]];
@@ -734,23 +779,23 @@
 
             const shortEMA = calculateEMA(prices, shortPeriod);
             const longEMA = calculateEMA(prices, longPeriod);
-            
+
             let macdLine = [];
             for (let i = 0; i < prices.length; i++) {
                 if (i >= longPeriod - 1) {
-                     const longIndex = i - (longPeriod - 1);
-                     const shortIndex = i - (shortPeriod - 1);
-                     if (shortEMA[shortIndex] !== undefined && longEMA[longIndex] !== undefined) {
+                    const longIndex = i - (longPeriod - 1);
+                    const shortIndex = i - (shortPeriod - 1);
+                    if (shortEMA[shortIndex] !== undefined && longEMA[longIndex] !== undefined) {
                         macdLine.push(shortEMA[shortIndex] - longEMA[longIndex]);
-                     }
+                    }
                 }
             }
-            
-            if (macdLine.length < signalPeriod) return { macd: 0, signal: 0, histogram: 0};
+
+            if (macdLine.length < signalPeriod) return { macd: 0, signal: 0, histogram: 0 };
 
             const signalLine = calculateEMA(macdLine, signalPeriod);
-            const macd = macdLine[macdLine.length-1];
-            const signal = signalLine[signalLine.length-1];
+            const macd = macdLine[macdLine.length - 1];
+            const signal = signalLine[signalLine.length - 1];
             return { macd, signal, histogram: macd - signal };
         }
 
@@ -795,7 +840,7 @@
                             state.portfolio.last_equity = lastEntry.y;
                         }
                     }
-                    
+
                     state.isFirstTradeMadeToday = data.isFirstTradeMadeToday || false;
                     state.lastTradeDate = data.lastTradeDate || null;
 
@@ -926,6 +971,12 @@
                     }
                 }
             });
+
+            // Data Management Listeners
+            UI.data.exportBtn.addEventListener('click', exportData);
+            UI.data.importBtn.addEventListener('click', () => UI.data.importInput.click());
+            UI.data.importInput.addEventListener('change', importData);
+            UI.data.clearBtn.addEventListener('click', clearData);
         }
 
         function updateDashboardUI() {
@@ -963,6 +1014,32 @@
             }).join('');
         }
 
+        function renderAiWatchlist() {
+            const container = UI.aiWatchlistContainer;
+            if (state.aiWatchlist.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 italic md:col-span-2 lg:col-span-3 xl:col-span-4">No high-confidence BUY signals from AI analysis.</p>`;
+                return;
+            }
+
+            container.innerHTML = state.aiWatchlist.map(stock => `
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-lg font-bold text-white">${stock.ticker}</h4>
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${stock.confidence >= 8 ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}">
+                            Confidence: ${stock.confidence}/10
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2 h-10 overflow-hidden">${stock.reasoning}</p>
+                    <div class="mt-3 pt-3 border-t border-slate-700 grid grid-cols-2 gap-2 text-xs">
+                        <div title="5-minute Relative Strength Index"><span class="text-gray-500">RSI(5m):</span> <span class="font-mono text-gray-200">${stock.rsi5m.toFixed(1)}</span></div>
+                        <div title="1-minute Relative Strength Index"><span class="text-gray-500">RSI(1m):</span> <span class="font-mono text-gray-200">${stock.rsi1m.toFixed(1)}</span></div>
+                        <div title="Average True Range (Volatility)"><span class="text-gray-500">ATR:</span> <span class="font-mono text-gray-200">${stock.atr.toFixed(3)}</span></div>
+                        <div title="MACD Crossover Signal"><span class="text-gray-500">MACD:</span> <span class="font-mono ${stock.macd.histogram > 0 ? 'text-green-400' : 'text-red-400'}">${stock.macd.histogram > 0 ? 'Bullish' : 'Bearish'}</span></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function initializeChart() {
             const ctx = UI.performanceChartCanvas.getContext('2d');
             performanceChart = new Chart(ctx, {
@@ -992,6 +1069,79 @@
             performanceChart.data.datasets[0].data = state.performanceData;
             performanceChart.update();
         }
+
+        // --- NEW DATA MANAGEMENT FUNCTIONS ---
+        async function exportData() {
+            logMessage("Exporting application data...", "action");
+            try {
+                const handle = await getOpfsFileHandle();
+                if (!handle) {
+                    showToast("No data file found to export.", "warning");
+                    return;
+                }
+                const file = await handle.getFile();
+                const contents = await file.text();
+                const blob = new Blob([contents], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `trading_bot_data_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast("Data exported successfully.", "success");
+            } catch (e) {
+                logMessage(`Export failed: ${e.message}`, "error");
+                showToast("Data export failed.", "error");
+            }
+        }
+
+        async function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const content = e.target.result;
+                    JSON.parse(content); // Validate JSON
+                    const handle = await getOpfsFileHandle(true);
+                    const writable = await handle.createWritable();
+                    await writable.write(content);
+                    await writable.close();
+                    showToast("Import successful! Reloading application...", "success");
+                    logMessage("Data imported successfully. Please reload.", "action");
+                    setTimeout(() => window.location.reload(), 2000);
+                } catch (err) {
+                    logMessage(`Import failed: ${err.message}`, "error");
+                    showToast("Import failed. Invalid file format.", "error");
+                }
+            };
+            reader.readAsText(file);
+            UI.data.importInput.value = ''; // Reset input
+        }
+
+        async function clearData() {
+            if (!window.confirm("Are you sure you want to delete all trading data? This action cannot be undone.")) {
+                return;
+            }
+            logMessage("Clearing all application data...", "action");
+            try {
+                const root = await navigator.storage.getDirectory();
+                await root.removeEntry('trading_bot_data.json');
+                showToast("Data cleared. Reloading application...", "success");
+                setTimeout(() => window.location.reload(), 2000);
+            } catch (e) {
+                if (e.name === 'NotFoundError') {
+                    showToast("No data file to clear.", "info");
+                } else {
+                    logMessage(`Failed to clear data: ${e.message}`, "error");
+                    showToast("Failed to clear data.", "error");
+                }
+            }
+        }
+
 
         // --- UTILITIES ---
         function isMarketOpen() {
@@ -1047,4 +1197,3 @@
 </body>
 
 </html>
-

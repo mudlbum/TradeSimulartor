@@ -1,0 +1,59 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0f172a;
+}
+
+.glass-widget {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+.tab-active {
+    border-color: #3b82f6;
+    color: #eff6ff;
+}
+
+.tab-inactive {
+    border-color: transparent;
+    color: #94a3b8;
+}
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #FFF;
+    border-bottom-color: #3b82f6;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
